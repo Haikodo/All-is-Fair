@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Battle Simulation Prototype</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <h1>Battle Simulation</h1>
+    <button onclick="startBattle()">Start Battle</button>
+    <div id="battle-log"></div>
+    
+    <div class="npc-dialogue" id="npc-dialogue">
+        <p id="npc-text"></p>
+        <button onclick="setStance('positive')">Console</button>
+        <button onclick="setStance('negative')">Rebuke</button>
+        <button onclick="setStance('neutral')">Stay Neutral</button>
+        <button onclick="setStance('none')">Say Nothing</button>
+    </div>
+</body>
+</html>
