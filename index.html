@@ -3,11 +3,14 @@
 <head>
     <title>Battle Simulation Prototype</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
-    <script src="script.js" defer></script>
+    <script src="scripts/chrdata.js" defer></script> 
+    <script src="scripts/script.js" defer></script>
 </head>
 <body>
     <h1>Battle Simulation</h1>
     <button onclick="startBattle()">Start Battle</button>
+    <button onclick="toggleCombatLog()">Toggle Combat Log</button>
+    
     <div id="battle-log"></div>
     
     <div class="npc-dialogue" id="npc-dialogue">
@@ -17,5 +20,8 @@
         <button onclick="setStance('neutral')">Stay Neutral</button>
         <button onclick="setStance('none')">Say Nothing</button>
     </div>
+    <!-- <button onclick="saveNPC()">saveNPC</button>
+    <button onclick="loadNPC()">loadNPC</button>
+    <div id="combat-log"></div>  Combat Log -->
 </body>
 </html>
