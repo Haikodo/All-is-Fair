@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", function () {
     let combatLog = document.getElementById("combat-log");
     let npcs = []; // Array to store created NPCs
     let npcRegistry = {}; // Object to store NPCs by token ID
+    let currentSaveSlot = "manualSave"; // Default save slot
+    let autosaveIntervalId = null; // Variable to store the autosave interval ID
 
     class NPC {
         constructor(name, personality, experience, loyalty, background, uniqueId) {
@@ -15,7 +17,6 @@ document.addEventListener("DOMContentLoaded", function () {
             this.loyalty = loyalty;
             this.background = background;
             this.tokenId = uniqueId; // Assign unique token ID
-
         }
 
         gainExperience() {
@@ -29,27 +30,51 @@ document.addEventListener("DOMContentLoaded", function () {
         getIntroduction() {
             return `${this.name}, a ${this.background}, seems ${this.personality.toLowerCase()}.`;
         }
-        
+    }
+
+    class Dialogue {
+        constructor(npc) {
+            this.npc = npc;
+            this.possibleDialogues = dialogues.default; // Use default dialogues or customize as needed
+        }
+
+        getRandomDialogue() {
+            return this.possibleDialogues[Math.floor(Math.random() * this.possibleDialogues.length)];
+        }
     }
 
     // Function to save NPCs to localStorage
-    function saveNPC(npc) {
-        npcList.push(npc);
-        localStorage.setItem("npcList", JSON.stringify(npcList));
+    function saveNPCs(slot = currentSaveSlot) {
+        localStorage.setItem(slot, JSON.stringify(npcs));
+        console.log(`NPCs saved to ${slot}.`);
     }
 
     // Function to load NPCs from localStorage
-    function loadNPCs() {
-        let storedNPCs = localStorage.getItem("npcList");
+    function loadNPCs(slot = currentSaveSlot) {
+        let storedNPCs = localStorage.getItem(slot);
         if (storedNPCs) {
-            npcList = JSON.parse(storedNPCs).map(npcData => new NPC(
+            npcs = JSON.parse(storedNPCs).map(npcData => new NPC(
                 npcData.name,
                 npcData.personality,
                 npcData.experience,
                 npcData.loyalty,
-                npcData.background
+                npcData.background,
+                npcData.tokenId
             ));
+            npcRegistry = {};
+            npcs.forEach(npc => {
+                npcRegistry[npc.tokenId] = npc;
+            });
+            console.log(`NPCs loaded from ${slot}.`);
         }
+    }
+
+    // Function to wipe localStorage
+    function wipeLocalStorage() {
+        localStorage.clear();
+        npcs = [];
+        npcRegistry = {};
+        console.log("LocalStorage wiped.");
     }
 
     // Get a random NPC name
@@ -71,7 +96,6 @@ document.addEventListener("DOMContentLoaded", function () {
     function generateTokenId() {
         return 'npc_' + Math.random().toString(36).substr(2, 9); // Simple unique token ID
     }
-            
 
     function startBattle() {
         battleLog.innerHTML = "The battle begins...\n";
@@ -103,12 +127,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         npcDialogue.style.display = "block";
 
-        let possibleDialogues = [
-            `${newNPC.name}: "I can't believe they are all dead... [Player], was it my fault?"`,
-            `${newNPC.name}: "I was RIGHT THERE! I could've saved them, [Player]!"`
-        ];
-
-        npcText.textContent = possibleDialogues[Math.floor(Math.random() * possibleDialogues.length)];
+        let dialogue = new Dialogue(newNPC);
+        npcText.textContent = `${newNPC.name}: ` + dialogue.getRandomDialogue();
         console.log("New NPC Created:", newNPC);
     }
 
@@ -169,28 +189,47 @@ document.addEventListener("DOMContentLoaded", function () {
         reader.onload = function (e) {
             try {
                 let importedData = JSON.parse(e.target.result);
-                importedData.forEach(npcData => {
-                    let existingNPCIndex = npcs.findIndex(npc => npc.tokenId === npcData.tokenId);
-                    let newNPC = new NPC(npcData.name, npcData.personality, npcData.experience, npcData.loyalty, npcData.background, npcData.tokenId);
-                    
-                    if (existingNPCIndex !== -1) {
-                        // Update existing NPC
-                        npcs[existingNPCIndex] = newNPC;
-                        console.log(`${npcData.name} with tokenId ${npcData.tokenId} has been overwritten.`);
-                    } else {
-                        // Add new NPC
-                        npcs.push(newNPC);
-                    }
-                    
-                    // Update the registry
-                    npcRegistry[newNPC.tokenId] = newNPC;
-                });
-                console.log("NPCs imported successfully:", npcs);
+                if (Array.isArray(importedData)) {
+                    importedData.forEach(npcData => {
+                        if (validateNPCData(npcData)) {
+                            let existingNPCIndex = npcs.findIndex(npc => npc.tokenId === npcData.tokenId);
+                            let newNPC = new NPC(npcData.name, npcData.personality, npcData.experience, npcData.loyalty, npcData.background, npcData.tokenId);
+                            
+                            if (existingNPCIndex !== -1) {
+                                // Update existing NPC
+                                npcs[existingNPCIndex] = newNPC;
+                                console.log(`${npcData.name} with tokenId ${npcData.tokenId} has been overwritten.`);
+                            } else {
+                                // Add new NPC
+                                npcs.push(newNPC);
+                            }
+                            
+                            // Update the registry
+                            npcRegistry[newNPC.tokenId] = newNPC;
+                        } else {
+                            console.error("Invalid NPC data:", npcData);
+                        }
+                    });
+                    console.log("NPCs imported successfully:", npcs);
+                } else {
+                    console.error("Invalid data format. Expected an array of NPCs.");
+                }
             } catch (error) {
                 console.error("Error importing NPCs:", error);
             }
         };
         reader.readAsText(file);
+    }
+
+    // Validate NPC data
+    function validateNPCData(npcData) {
+        return npcData &&
+            typeof npcData.name === 'string' &&
+            typeof npcData.personality === 'string' &&
+            typeof npcData.experience === 'number' &&
+            typeof npcData.loyalty === 'number' &&
+            typeof npcData.background === 'string' &&
+            typeof npcData.tokenId === 'string';
     }
 
     // Create export/import buttons
@@ -212,10 +251,103 @@ document.addEventListener("DOMContentLoaded", function () {
         importButton.onclick = function () {
             document.getElementById("importNPCFile").click();
         };
-        let devToolsContainer = document.createElement("div");
+
+        let loadautobutton = document.createElement("button");
+        loadautobutton.textContent = "Load Autosave";
+        loadautobutton.onclick = function () {
+            loadNPCs("autoSave");
+        }
+
+        let saveButton1 = document.createElement("button");
+        saveButton1.textContent = "Save Slot 1";
+        saveButton1.onclick = function () {
+            saveNPCs("saveSlot1");
+        };
+
+        let loadButton1 = document.createElement("button");
+        loadButton1.textContent = "Load Slot 1";
+        loadButton1.onclick = function () {
+            loadNPCs("saveSlot1");
+        };
+
+        let saveButton2 = document.createElement("button");
+        saveButton2.textContent = "Save Slot 2";
+        saveButton2.onclick = function () {
+            saveNPCs("saveSlot2");
+        };
+
+        let loadButton2 = document.createElement("button");
+        loadButton2.textContent = "Load Slot 2";
+        loadButton2.onclick = function () {
+            loadNPCs("saveSlot2");
+        };
+
+        let saveButton3 = document.createElement("button");
+        saveButton3.textContent = "Save Slot 3";
+        saveButton3.onclick = function () {
+            saveNPCs("saveSlot3");
+        };
+
+        let loadButton3 = document.createElement("button");
+        loadButton3.textContent = "Load Slot 3";
+        loadButton3.onclick = function () {
+            loadNPCs("saveSlot3");
+        };
+
+        let wipeButton = document.createElement("button");
+        wipeButton.textContent = "Wipe LocalStorage";
+        wipeButton.onclick = wipeLocalStorage;
+
+        let toggleAutosaveButton = document.createElement("button");
+        toggleAutosaveButton.textContent = "Toggle Autosave";
+        toggleAutosaveButton.onclick = toggleAutosave;
+
+        let devToolsContainer = document.getElementById("dev-tools-container");
         devToolsContainer.appendChild(exportButton);
         devToolsContainer.appendChild(importButton);
-        document.body.appendChild(devToolsContainer);
+        devToolsContainer.appendChild(loadautobutton);
+        devToolsContainer.appendChild(saveButton1);
+        devToolsContainer.appendChild(loadButton1);
+        devToolsContainer.appendChild(saveButton2);
+        devToolsContainer.appendChild(loadButton2);
+        devToolsContainer.appendChild(saveButton3);
+        devToolsContainer.appendChild(loadButton3);
+        devToolsContainer.appendChild(wipeButton);
+        devToolsContainer.appendChild(toggleAutosaveButton);
     }
+
+    function toggleDevTools() {
+        let devToolsContainer = document.getElementById("dev-tools-container");
+        if (devToolsContainer.style.display === "none") {
+            devToolsContainer.style.display = "block";
+        } else {
+            devToolsContainer.style.display = "none";
+        }
+    }
+
+    function toggleAutosave() {
+        if (autosaveIntervalId === null) {
+            autosaveIntervalId = setInterval(() => saveNPCs("autoSave"), 30000);
+            console.log("Autosave enabled.");
+        } else {
+            clearInterval(autosaveIntervalId);
+            autosaveIntervalId = null;
+            console.log("Autosave disabled.");
+        }
+    }
+
     createDevTools();
+
+    // Load NPCs from localStorage on page load
+    loadNPCs();
+
+    // Start autosave by default
+    toggleAutosave();
+
+    // Expose save and load functions globally
+    window.saveNPCs = saveNPCs;
+    window.loadNPCs = loadNPCs;
+    window.toggleDevTools = toggleDevTools;
+    window.wipeLocalStorage = wipeLocalStorage;
+    window.toggleAutosave = toggleAutosave;
 });
