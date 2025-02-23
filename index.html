@@ -7,23 +7,42 @@
     <script src="scripts/script.js" defer></script>
 </head>
 <body>
-    <h1>Battle Simulation</h1>
-    <button onclick="startBattle()">Start Battle</button>
-    <button onclick="toggleCombatLog()">Toggle Combat Log</button>
-    
-    <div id="battle-log"></div>
-    
-    <div class="npc-dialogue" id="npc-dialogue">
-        <p id="npc-text"></p>
-        <button onclick="setStance('positive')">Console</button>
-        <button onclick="setStance('negative')">Rebuke</button>
-        <button onclick="setStance('neutral')">Stay Neutral</button>
-        <button onclick="setStance('none')">Say Nothing</button>
-    </div>
+    <nav>
+        <h1>Battle Simulation</h1>
+        <button onclick="showTab('battle')">Battle System</button>
+        <button onclick="showTab('npc')">NPC Interaction</button>
+        <button id="toggle-dev-tools" onclick="toggleDevTools()">Toggle Dev Tools</button>
+    </nav>
 
-    <button id="toggle-dev-tools" onclick="toggleDevTools()">Toggle Dev Tools</button>
-    <div id="dev-tools-container" style="display: none;"></div>
+    <main>
+        <div id="battle-tab" class="tab-content">
+            <button onclick="startBattle()">Start Battle</button>
+            <div id="battle-log" class="log-container"></div>
+            <div class="npc-dialogue" id="npc-dialogue">
+                <p id="npc-text"></p>
+                <button onclick="setStance('positive')">Console</button>
+                <button onclick="setStance('negative')">Rebuke</button>
+                <button onclick="setStance('neutral')">Stay Neutral</button>
+                <button onclick="setStance('none')">Say Nothing</button>
+            </div>
+        </div>
+        
+        <div id="npc-tab" class="tab-content" style="display: none;">
+            <div class="npc-interaction-container">
+                <div class="menu">
+                    <button onclick="showPlayerInfo()">Player Info</button>
+                    <button onclick="showNPCList()">Talk to...</button>
+                </div>
+                <div id="npc-list" class="info-container" style="display: none;">
+                    <!-- NPC list will be displayed here -->
+                </div>
+                <div id="player-info" class="info-container" style="display: none;">
+                    <!-- Player info will be displayed here -->
+                </div>
+            </div>
+        </div>
 
-    <div id="combat-log"></div>
+        <div id="dev-tools-container" style="display: none;"></div>
+    </main>
 </body>
 </html>

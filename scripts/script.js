@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", function () {
     let battleLog = document.getElementById("battle-log");
     let npcDialogue = document.getElementById("npc-dialogue");
     let npcText = document.getElementById("npc-text");
-    let combatLog = document.getElementById("combat-log");
     let npcs = []; // Array to store created NPCs
     let npcRegistry = {}; // Object to store NPCs by token ID
     let currentSaveSlot = "manualSave"; // Default save slot
@@ -335,6 +334,65 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("Autosave disabled.");
         }
     }
+
+    function showTab(tabName) {
+        const tabs = document.querySelectorAll('.tab-content');
+        tabs.forEach(tab => {
+            tab.style.display = 'none';
+        });
+        document.getElementById(`${tabName}-tab`).style.display = 'block';
+        console.log(`Switched to ${tabName} tab.`);
+    }
+
+    function toggleInfo(infoId) {
+        const infoSections = document.querySelectorAll('.info-container');
+        infoSections.forEach(section => {
+            section.style.display = 'none';
+        });
+        document.getElementById(infoId).style.display = 'block';
+        console.log(`Displaying ${infoId}`);
+    }
+
+    function showPlayerInfo() {
+        toggleInfo('player-info');
+        // Populate player info
+        document.getElementById('player-info').innerHTML = `
+            <h2>Player Info</h2>
+            <p>Name: ${player.name}</p>
+            <p>Experience: ${player.experience}</p>
+        `;
+        console.log("Player info displayed.");
+    }
+
+    function showNPCList() {
+        toggleInfo('npc-list');
+        // Populate NPC list
+        let npcListHtml = '<h2>Talk to...</h2>';
+        npcs.forEach(npc => {
+            npcListHtml += `<button onclick="talkToNPC('${npc.tokenId}')">${npc.name}</button>`;
+        });
+        document.getElementById('npc-list').innerHTML = npcListHtml;
+        console.log("NPC list displayed.");
+    }
+
+    function talkToNPC(npcId) {
+        const npc = npcRegistry[npcId];
+        if (npc) {
+            alert(`Talking to ${npc.name}`);
+            console.log(`Talking to NPC: ${npc.name}`);
+            // Implement the dialogue interaction here
+        }
+    }
+
+    // Expose functions globally
+    window.showTab = showTab;
+    window.toggleInfo = toggleInfo;
+    window.showPlayerInfo = showPlayerInfo;
+    window.showNPCList = showNPCList;
+    window.talkToNPC = talkToNPC;
+
+    // Show the battle tab by default
+    showTab('battle');
 
     createDevTools();
 
