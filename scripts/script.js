@@ -156,9 +156,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Expose functions globally
-    window.startBattle = startBattle;
-    window.setStance = setStance;
-    window.debugNPCs = debugNPCs;
+    window.startBattle = startBattle; // Start the battle
+    window.setStance = setStance; // Set the stance of the player
+    window.debugNPCs = debugNPCs; // Debug NPCs
 
     // Function to add or overwrite an NPC
     function addOrUpdateNPC(npc) {
@@ -342,6 +342,44 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         document.getElementById(`${tabName}-tab`).style.display = 'block';
         console.log(`Switched to ${tabName} tab.`);
+
+        // Disable the active tab button
+        document.getElementById('battle-tab-button').disabled = (tabName === 'battle');
+        document.getElementById('npc-tab-button').disabled = (tabName === 'npc');
+    }
+
+    function switchToMapMode() {
+        battleState = "map";
+        battleLog.innerHTML = "You are in Map mode. Select a battlefield to start the battle.";
+        console.log("Switched to Map mode.");
+
+        // Disable the active mode button
+        document.getElementById('map-mode-button').disabled = true;
+        document.getElementById('deployment-mode-button').disabled = false;
+        document.getElementById('battle-mode-button').disabled = false;
+    }
+
+    function switchToDeploymentMode() {
+        battleState = "deployment";
+        battleLog.innerHTML = "You are in Deployment mode. Deploy your units.";
+        console.log("Switched to Deployment mode.");
+
+        // Disable the active mode button
+        document.getElementById('map-mode-button').disabled = false;
+        document.getElementById('deployment-mode-button').disabled = true;
+        document.getElementById('battle-mode-button').disabled = false;
+    }
+
+    function switchToBattleMode() {
+        battleState = "battle";
+        battleLog.innerHTML = "The battle begins...\n";
+        console.log("Switched to Battle mode.");
+        startBattle();
+
+        // Disable the active mode button
+        document.getElementById('map-mode-button').disabled = false;
+        document.getElementById('deployment-mode-button').disabled = false;
+        document.getElementById('battle-mode-button').disabled = true;
     }
 
     function toggleInfo(infoId) {
@@ -362,6 +400,10 @@ document.addEventListener("DOMContentLoaded", function () {
             <p>Experience: ${player.experience}</p>
         `;
         console.log("Player info displayed.");
+
+        // Disable the active info button
+        document.getElementById('player-info-button').disabled = true;
+        document.getElementById('npc-list-button').disabled = false;
     }
 
     function showNPCList() {
@@ -373,6 +415,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         document.getElementById('npc-list').innerHTML = npcListHtml;
         console.log("NPC list displayed.");
+
+        // Disable the active info button
+        document.getElementById('player-info-button').disabled = false;
+        document.getElementById('npc-list-button').disabled = true;
     }
 
     function talkToNPC(npcId) {
@@ -386,6 +432,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Expose functions globally
     window.showTab = showTab;
+    window.switchToMapMode = switchToMapMode;
+    window.switchToDeploymentMode = switchToDeploymentMode;
+    window.switchToBattleMode = switchToBattleMode;
     window.toggleInfo = toggleInfo;
     window.showPlayerInfo = showPlayerInfo;
     window.showNPCList = showNPCList;

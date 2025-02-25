@@ -124,6 +124,7 @@ main {
     padding: 10px 20px;
     cursor: pointer;
     margin-bottom: 10px;
+    width: 200px; /* Set a fixed width */
 }
 
 .menu button:hover {
@@ -136,4 +137,9 @@ main {
     border: 1px solid #ccc;
     border-radius: 5px;
     width: 65%;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
