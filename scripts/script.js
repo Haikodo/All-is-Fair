@@ -1,6 +1,9 @@
-import { showPlayerInfo, showNPCList, talkToNPC } from './npc.js';
+import { showPlayerInfo, showNPCList, talkToNPC, promoteToNPC } from './npc.js';
 import { switchToMapMode, switchToDeploymentMode, switchToBattleMode } from './battle.js';
-import { toggleInfo } from './utils.js';
+import { toggleInfo, toggleButtons, switchMode } from './utils.js';
+import { getRandomName, getRandomPersonality, getRandomBackground, generateTokenId } from './npcUtils.js';
+import { NPC } from './npcClass.js';
+import { Dialogue } from './dialogueClass.js'; // Import Dialogue class
 
 document.addEventListener("DOMContentLoaded", function () {
     let units = ["Soldier 1", "Soldier 2", "Soldier 3", "Soldier 4", "Soldier 5"];
@@ -11,40 +14,6 @@ document.addEventListener("DOMContentLoaded", function () {
     let npcRegistry = {}; // Object to store NPCs by token ID
     let currentSaveSlot = "manualSave"; // Default save slot
     let autosaveIntervalId = null; // Variable to store the autosave interval ID
-
-    class NPC {
-        constructor(name, personality, experience, loyalty, background, uniqueId) {
-            this.name = name;
-            this.personality = personality;
-            this.experience = experience;
-            this.loyalty = loyalty;
-            this.background = background;
-            this.tokenId = uniqueId; // Assign unique token ID
-        }
-
-        gainExperience() {
-            this.experience++;
-        }
-
-        adjustLoyalty(amount) {
-            this.loyalty += amount;
-        }
-
-        getIntroduction() {
-            return `${this.name}, a ${this.background}, seems ${this.personality.toLowerCase()}.`;
-        }
-    }
-
-    class Dialogue {
-        constructor(npc) {
-            this.npc = npc;
-            this.possibleDialogues = dialogues.default; // Use default dialogues or customize as needed
-        }
-
-        getRandomDialogue() {
-            return this.possibleDialogues[Math.floor(Math.random() * this.possibleDialogues.length)];
-        }
-    }
 
     // Function to save NPCs to localStorage
     function saveNPCs(slot = currentSaveSlot) {
@@ -80,26 +49,6 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("LocalStorage wiped.");
     }
 
-    // Get a random NPC name
-    function getRandomName() {
-        return NPC_NAMES[Math.floor(Math.random() * NPC_NAMES.length)];
-    }
-
-    // Get a random NPC personality
-    function getRandomPersonality() {
-        return personalityPool[Math.floor(Math.random() * personalityPool.length)];
-    }
-
-    // Get a random NPC background
-    function getRandomBackground() {
-        return backgroundPool[Math.floor(Math.random() * backgroundPool.length)];
-    }
-
-    // Function to generate a unique token ID for each NPC
-    function generateTokenId() {
-        return 'npc_' + Math.random().toString(36).substr(2, 9); // Simple unique token ID
-    }
-
     function startBattle() {
         battleLog.innerHTML = "The battle begins...\n";
         let remainingUnits = [...units];
@@ -114,25 +63,6 @@ document.addEventListener("DOMContentLoaded", function () {
         battleLog.innerHTML += `${survivor} is the sole survivor of the battle...\n`;
         
         promoteToNPC(survivor);
-    }
-
-    function promoteToNPC(unitName) {
-        let npcName = getRandomName();
-        let personality = getRandomPersonality();
-        let experience = Math.floor(Math.random() * 100);
-        let loyalty = Math.floor(Math.random() * 100);
-        let background = getRandomBackground();
-        let uniqueId = generateTokenId();
-
-        let newNPC = new NPC(npcName, personality, experience, loyalty, background, uniqueId);
-        npcs.push(newNPC);
-        npcRegistry[newNPC.tokenId] = newNPC; // Add NPC to registry
-
-        npcDialogue.style.display = "block";
-
-        let dialogue = new Dialogue(newNPC);
-        npcText.textContent = `${newNPC.name}: ` + dialogue.getRandomDialogue();
-        console.log("New NPC Created:", newNPC);
     }
 
     function setStance(stance) {
@@ -159,19 +89,46 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
-    // Expose functions globally
-    window.startBattle = startBattle; // Start the battle
-    window.setStance = setStance; // Set the stance of the player
-    window.debugNPCs = debugNPCs; // Debug NPCs
-
     // Function to add or overwrite an NPC
     function addOrUpdateNPC(npc) {
         npcRegistry[npc.tokenId] = npc; // If token ID already exists, it will overwrite
     }
     console.log(npcRegistry);
 
-    // Expose addOrUpdateNPC function globally
-    window.addOrUpdateNPC = addOrUpdateNPC;
+    // Function to perform a status check
+    function statusCheck() {
+        try {
+            console.log("Starting status check...");
+
+            // Test NPC creation
+            let testNPC = new NPC(getRandomName(), getRandomPersonality(), 50, 50, getRandomBackground(), generateTokenId());
+            addOrUpdateNPC(testNPC);
+            console.log("NPC creation test passed.");
+
+            // Test battle mode
+            switchToBattleMode();
+            console.log("Battle mode test passed.");
+
+            // Test player info display
+            showPlayerInfo();
+            console.log("Player info display test passed.");
+
+            // Test NPC list display
+            showNPCList();
+            console.log("NPC list display test passed.");
+
+            console.log("Status check completed successfully.");
+        } catch (error) {
+            console.error("Status check failed:", error);
+        }
+    }
+
+    // Expose functions globally
+    window.startBattle = startBattle; // Start the battle
+    window.setStance = setStance; // Set the stance of the player
+    window.debugNPCs = debugNPCs; // Debug NPCs
+    window.addOrUpdateNPC = addOrUpdateNPC; // Add or update an NPC
+    window.statusCheck = statusCheck; // Perform a status check
 
     // Export NPCs as JSON file
     function exportNPCs() {
@@ -305,6 +262,10 @@ document.addEventListener("DOMContentLoaded", function () {
         toggleAutosaveButton.textContent = "Toggle Autosave";
         toggleAutosaveButton.onclick = toggleAutosave;
 
+        let statusCheckButton = document.createElement("button");
+        statusCheckButton.textContent = "Status Check";
+        statusCheckButton.onclick = statusCheck;
+
         let devToolsContainer = document.getElementById("dev-tools-container");
         devToolsContainer.appendChild(exportButton);
         devToolsContainer.appendChild(importButton);
@@ -317,6 +278,7 @@ document.addEventListener("DOMContentLoaded", function () {
         devToolsContainer.appendChild(loadButton3);
         devToolsContainer.appendChild(wipeButton);
         devToolsContainer.appendChild(toggleAutosaveButton);
+        devToolsContainer.appendChild(statusCheckButton);
     }
 
     function toggleDevTools() {
@@ -379,4 +341,6 @@ document.addEventListener("DOMContentLoaded", function () {
     window.toggleDevTools = toggleDevTools;
     window.wipeLocalStorage = wipeLocalStorage;
     window.toggleAutosave = toggleAutosave;
+
+    console.log("Script loaded successfully.");
 });

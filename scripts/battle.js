@@ -1,9 +1,12 @@
 import { toggleButtons } from './utils.js';
+import { promoteToNPC } from './npc.js';
+import { dialogues } from './chrdata.js';
 
 let units = ["Soldier 1", "Soldier 2", "Soldier 3", "Soldier 4", "Soldier 5"];
 let battleLog = document.getElementById("battle-log");
 let battlefieldName = document.getElementById("battlefield-name");
 let battleState = "map"; // Initial state
+const dialoguesElement = document.getElementById('npc-dialogue'); // Ensure this ID matches the HTML
 
 function setBattlefieldName(name) {
     battlefieldName.innerHTML = `Battlefield: ${name}`;
@@ -26,7 +29,6 @@ export function switchToDeploymentMode() {
 
 export function switchToBattleMode() {
     switchMode('battle', "The battle begins...\n", 'battle-mode-button');
-    startBattle();
 }
 
 function startBattle() {
@@ -49,25 +51,6 @@ function startBattle() {
     promoteToNPC(survivor);
 }
 
-function promoteToNPC(unitName) {
-    let npcName = getRandomName();
-    let personality = getRandomPersonality();
-    let experience = Math.floor(Math.random() * 100);
-    let loyalty = Math.floor(Math.random() * 100);
-    let background = getRandomBackground();
-    let uniqueId = generateTokenId();
-
-    let newNPC = new NPC(npcName, personality, experience, loyalty, background, uniqueId);
-    npcs.push(newNPC);
-    npcRegistry[newNPC.tokenId] = newNPC; // Add NPC to registry
-
-    npcDialogue.style.display = "block";
-
-    let dialogue = new Dialogue(newNPC);
-    npcText.textContent = `${newNPC.name}: ` + dialogue.getRandomDialogue();
-    console.log("New NPC Created:", newNPC);
-}
-
 function setStance(stance) {
     let responseLog = {
         "positive": "You console the survivor, reassuring them that they did what they could.",
@@ -77,7 +60,7 @@ function setStance(stance) {
     };
 
     battleLog.innerHTML += responseLog[stance] + "\n";
-    npcDialogue.style.display = "none";
+    dialoguesElement.style.display = "none";
 }
 
 // Expose functions globally
