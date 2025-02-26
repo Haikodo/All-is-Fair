@@ -91,7 +91,6 @@ document.addEventListener("DOMContentLoaded", function () {
     function addOrUpdateNPC(npc) {
         npcRegistry[npc.tokenId] = npc; // If token ID already exists, it will overwrite
     }
-    console.log(npcRegistry);
 
     // Function to perform a status check
     function statusCheck() {
@@ -101,23 +100,23 @@ document.addEventListener("DOMContentLoaded", function () {
             // Test NPC creation
             let testNPC = new NPC(getRandomName(), getRandomPersonality(), 50, 50, getRandomBackground(), generateTokenId());
             addOrUpdateNPC(testNPC);
-            console.log("NPC creation test passed.");
+            console.log("%cNPC creation test passed.", 'color: green;');
 
             // Test battle mode
             switchToBattleMode();
-            console.log("Battle mode test passed.");
+            console.log("%cBattle mode test passed.", 'color: green;');
 
             // Test player info display
             showPlayerInfo();
-            console.log("Player info display test passed.");
+            console.log("%cPlayer info display test passed.", 'color: green;');
 
             // Test NPC list display
             showNPCList();
-            console.log("NPC list display test passed.");
+            console.log("%cNPC list display test passed.", 'color: green;');
 
-            console.log("Status check completed successfully.");
+            console.log("%cStatus check completed successfully.", 'color: green; font-weight: bold;');
         } catch (error) {
-            console.error("Status check failed:", error);
+            console.error("%cStatus check failed:", error, 'color: red; font-weight: bold;');
         }
     }
 
@@ -165,15 +164,15 @@ document.addEventListener("DOMContentLoaded", function () {
                             // Update the registry
                             npcRegistry[newNPC.tokenId] = newNPC;
                         } else {
-                            console.error("Invalid NPC data:", npcData);
+                            console.error("%cInvalid NPC data:", npcData, "color: red;");
                         }
                     });
-                    console.log("NPCs imported successfully:", npcs);
+                    console.log("%cNPCs imported successfully:", npcs, "color: green;");
                 } else {
-                    console.error("Invalid data format. Expected an array of NPCs.");
+                    console.error("%cInvalid data format. Expected an array of NPCs.", "color: red:");
                 }
             } catch (error) {
-                console.error("Error importing NPCs:", error);
+                console.error("%cError importing NPCs:", error, "color: red;");
             }
         };
         reader.readAsText(file);
@@ -340,5 +339,5 @@ document.addEventListener("DOMContentLoaded", function () {
     window.wipeLocalStorage = wipeLocalStorage;
     window.toggleAutosave = toggleAutosave;
 
-    console.log("Script loaded successfully.");
+    console.log("%cScript loaded successfully.", "color: green; font-weight: bold;");
 });
