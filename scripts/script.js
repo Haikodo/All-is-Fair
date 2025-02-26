@@ -1,15 +1,13 @@
 import { showPlayerInfo, showNPCList, talkToNPC, promoteToNPC } from './npc.js';
 import { switchToMapMode, switchToDeploymentMode, switchToBattleMode } from './battle.js';
-import { toggleInfo, toggleButtons, switchMode } from './utils.js';
+import { toggleInfo } from './utils.js';
 import { getRandomName, getRandomPersonality, getRandomBackground, generateTokenId } from './npcUtils.js';
 import { NPC } from './npcClass.js';
-import { Dialogue } from './dialogueClass.js'; // Import Dialogue class
 
 document.addEventListener("DOMContentLoaded", function () {
     let units = ["Soldier 1", "Soldier 2", "Soldier 3", "Soldier 4", "Soldier 5"];
     let battleLog = document.getElementById("battle-log");
     let npcDialogue = document.getElementById("npc-dialogue");
-    let npcText = document.getElementById("npc-text");
     let npcs = []; // Array to store created NPCs
     let npcRegistry = {}; // Object to store NPCs by token ID
     let currentSaveSlot = "manualSave"; // Default save slot
