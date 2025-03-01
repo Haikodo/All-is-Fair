@@ -1,5 +1,3 @@
-import { toggleButtons } from './utils.js';
-
 let units = ["Soldier 1", "Soldier 2", "Soldier 3", "Soldier 4", "Soldier 5"];
 let battleLog = document.getElementById("battle-log");
 let battlefieldName = document.getElementById("battlefield-name");
@@ -9,23 +7,22 @@ function setBattlefieldName(name) {
     battlefieldName.innerHTML = `Battlefield: ${name}`;
 }
 
-export function switchMode(mode, logMessage, activeButtonId) {
-    battleState = mode;
-    battleLog.innerHTML = logMessage;
-    console.log(`Switched to ${mode} mode.`);
-    toggleButtons(['map-mode-button', 'deployment-mode-button', 'battle-mode-button'], activeButtonId);
+function switchToMapMode() {
+    battleState = "map";
+    battleLog.innerHTML = "You are in Map mode. Select a battlefield to start the battle.";
+    console.log("Switched to Map mode.");
 }
 
-export function switchToMapMode() {
-    switchMode('map', "You are in Map mode. Select a battlefield to start the battle.", 'map-mode-button');
+function switchToDeploymentMode() {
+    battleState = "deployment";
+    battleLog.innerHTML = "You are in Deployment mode. Deploy your units.";
+    console.log("Switched to Deployment mode.");
 }
 
-export function switchToDeploymentMode() {
-    switchMode('deployment', "You are in Deployment mode. Deploy your units.", 'deployment-mode-button');
-}
-
-export function switchToBattleMode() {
-    switchMode('battle', "The battle begins...\n", 'battle-mode-button');
+function switchToBattleMode() {
+    battleState = "battle";
+    battleLog.innerHTML = "The battle begins...\n";
+    console.log("Switched to Battle mode.");
     startBattle();
 }
 

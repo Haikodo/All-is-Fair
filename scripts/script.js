@@ -1,7 +1,3 @@
-import { showPlayerInfo, showNPCList, talkToNPC } from './npc.js';
-import { switchToMapMode, switchToDeploymentMode, switchToBattleMode } from './battle.js';
-import { toggleInfo } from './utils.js';
-
 document.addEventListener("DOMContentLoaded", function () {
     let units = ["Soldier 1", "Soldier 2", "Soldier 3", "Soldier 4", "Soldier 5"];
     let battleLog = document.getElementById("battle-log");
@@ -350,6 +346,88 @@ document.addEventListener("DOMContentLoaded", function () {
         // Disable the active tab button
         document.getElementById('battle-tab-button').disabled = (tabName === 'battle');
         document.getElementById('npc-tab-button').disabled = (tabName === 'npc');
+    }
+
+    function switchToMapMode() {
+        battleState = "map";
+        battleLog.innerHTML = "You are in Map mode. Select a battlefield to start the battle.";
+        console.log("Switched to Map mode.");
+
+        // Disable the active mode button
+        document.getElementById('map-mode-button').disabled = true;
+        document.getElementById('deployment-mode-button').disabled = false;
+        document.getElementById('battle-mode-button').disabled = false;
+    }
+
+    function switchToDeploymentMode() {
+        battleState = "deployment";
+        battleLog.innerHTML = "You are in Deployment mode. Deploy your units.";
+        console.log("Switched to Deployment mode.");
+
+        // Disable the active mode button
+        document.getElementById('map-mode-button').disabled = false;
+        document.getElementById('deployment-mode-button').disabled = true;
+        document.getElementById('battle-mode-button').disabled = false;
+    }
+
+    function switchToBattleMode() {
+        battleState = "battle";
+        battleLog.innerHTML = "The battle begins...\n";
+        console.log("Switched to Battle mode.");
+        startBattle();
+
+        // Disable the active mode button
+        document.getElementById('map-mode-button').disabled = false;
+        document.getElementById('deployment-mode-button').disabled = false;
+        document.getElementById('battle-mode-button').disabled = true;
+    }
+
+    function toggleInfo(infoId) {
+        const infoSections = document.querySelectorAll('.info-container');
+        infoSections.forEach(section => {
+            section.style.display = 'none';
+        });
+        document.getElementById(infoId).style.display = 'block';
+        console.log(`Displaying ${infoId}`);
+    }
+
+    function showPlayerInfo() {
+        toggleInfo('player-info');
+        // Populate player info
+        document.getElementById('player-info').innerHTML = `
+            <h2>Player Info</h2>
+            <p>Name: ${player.name}</p>
+            <p>Experience: ${player.experience}</p>
+        `;
+        console.log("Player info displayed.");
+
+        // Disable the active info button
+        document.getElementById('player-info-button').disabled = true;
+        document.getElementById('npc-list-button').disabled = false;
+    }
+
+    function showNPCList() {
+        toggleInfo('npc-list');
+        // Populate NPC list
+        let npcListHtml = '<h2>Talk to...</h2>';
+        npcs.forEach(npc => {
+            npcListHtml += `<button onclick="talkToNPC('${npc.tokenId}')">${npc.name}</button>`;
+        });
+        document.getElementById('npc-list').innerHTML = npcListHtml;
+        console.log("NPC list displayed.");
+
+        // Disable the active info button
+        document.getElementById('player-info-button').disabled = false;
+        document.getElementById('npc-list-button').disabled = true;
+    }
+
+    function talkToNPC(npcId) {
+        const npc = npcRegistry[npcId];
+        if (npc) {
+            alert(`Talking to ${npc.name}`);
+            console.log(`Talking to NPC: ${npc.name}`);
+            // Implement the dialogue interaction here
+        }
     }
 
     // Expose functions globally
