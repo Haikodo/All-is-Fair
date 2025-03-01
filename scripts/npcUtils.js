@@ -1,3 +1,4 @@
+import { NPC } from './npcClass.js';
 import { NPC_NAMES, personalityPool, backgroundPool } from './chrdata.js';
 
 export function getRandomName() {

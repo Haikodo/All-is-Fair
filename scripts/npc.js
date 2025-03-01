@@ -1,5 +1,5 @@
 import { toggleButtons, toggleInfo } from './utils.js';
-import { player, npcs, npcRegistry } from './chrdata.js';
+import { player, npcs, npcRegistry, dialogues } from './chrdata.js';
 import { getRandomName, getRandomPersonality, getRandomBackground, generateTokenId } from './npcUtils.js';
 import { NPC } from './npcClass.js';
 import { Dialogue } from './dialogueClass.js';

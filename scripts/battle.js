@@ -1,10 +1,12 @@
 import { toggleButtons } from './utils.js';
 import { promoteToNPC } from './npc.js';
+import { dialogues } from './chrdata.js';
 
 let units = ["Soldier 1", "Soldier 2", "Soldier 3", "Soldier 4", "Soldier 5"];
 let battleLog = document.getElementById("battle-log");
 let battlefieldName = document.getElementById("battlefield-name");
 let battleState = "map"; // Initial state
+const dialoguesElement = document.getElementById('npc-dialogue'); // Ensure this ID matches the HTML
 
 function setBattlefieldName(name) {
     battlefieldName.innerHTML = `Battlefield: ${name}`;
@@ -49,24 +51,17 @@ function startBattle() {
     promoteToNPC(survivor);
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    const dialoguesElement = document.getElementById('npc-dialogue'); // Ensure this ID matches the HTML
+function setStance(stance) {
+    let responseLog = {
+        "positive": "You console the survivor, reassuring them that they did what they could.",
+        "negative": "You rebuke them for surviving while others perished.",
+        "neutral": "You remain neutral, offering no strong reaction.",
+        "none": "You say nothing, letting silence hang in the air."
+    };
 
-    function setStance(stance) {
-        let responseLog = {
-            "positive": "You console the survivor, reassuring them that they did what they could.",
-            "negative": "You rebuke them for surviving while others perished.",
-            "neutral": "You remain neutral, offering no strong reaction.",
-            "none": "You say nothing, letting silence hang in the air."
-        };
-
-        battleLog.innerHTML += responseLog[stance] + "\n";
-        dialoguesElement.style.display = "none";
-    }
-
-    // Expose functions globally
-    window.setStance = setStance;
-});
+    battleLog.innerHTML += responseLog[stance] + "\n";
+    dialoguesElement.style.display = "none";
+}
 
 // Expose functions globally
 window.setBattlefieldName = setBattlefieldName;
@@ -74,3 +69,4 @@ window.switchToMapMode = switchToMapMode;
 window.switchToDeploymentMode = switchToDeploymentMode;
 window.switchToBattleMode = switchToBattleMode;
 window.startBattle = startBattle;
+window.setStance = setStance;
