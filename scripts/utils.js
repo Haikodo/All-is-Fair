@@ -13,9 +13,12 @@ export function toggleInfo(infoId) {
     console.log(`Displaying ${infoId}`);
 }
 
-export function switchMode(mode, logMessage, activeButtonId) {
+function switchMode(mode, logMessage, activeButtonId) {
     battleState = mode;
     battleLog.innerHTML = logMessage;
     console.log(`Switched to ${mode} mode.`);
     toggleButtons(['map-mode-button', 'deployment-mode-button', 'battle-mode-button'], activeButtonId);
 }
+
+// Expose the function globally
+window.switchMode = switchMode;
