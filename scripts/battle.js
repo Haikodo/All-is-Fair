@@ -31,7 +31,7 @@ export function switchToBattleMode() {
 
 function startBattle() {
     if (battleState !== "battle") {
-        console.error("%cCannot start battle. Not in Battle mode.", "color: red, font-weight: bold;");
+        console.error("Cannot start battle. Not in Battle mode.");
         return;
     }
 

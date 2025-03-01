@@ -15,6 +15,7 @@ export function showPlayerInfo() {
         <p>Name: ${player.name}</p>
         <p>Experience: ${player.experience}</p>
     `;
+    console.log("Player info displayed.");
 
     // Disable the active info button
     toggleButtons(['player-info-button', 'npc-list-button'], 'player-info-button');
@@ -28,6 +29,7 @@ export function showNPCList() {
         npcListHtml += `<button onclick="talkToNPC('${npc.tokenId}')">${npc.name}</button>`;
     });
     document.getElementById('npc-list').innerHTML = npcListHtml;
+    console.log("NPC list displayed.");
 
     // Disable the active info button
     toggleButtons(['player-info-button', 'npc-list-button'], 'npc-list-button');
@@ -58,4 +60,5 @@ export function promoteToNPC(unitName) {
 
     let dialogue = new Dialogue(newNPC);
     npcText.textContent = `${newNPC.name}: ` + dialogue.getRandomDialogue();
+    console.log("New NPC Created:", newNPC);
 }
