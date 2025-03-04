@@ -9,13 +9,14 @@ document.addEventListener("DOMContentLoaded", function () {
     let autosaveIntervalId = null; // Variable to store the autosave interval ID
 
     class NPC {
-        constructor(name, personality, experience, loyalty, background, uniqueId) {
+        constructor(name, personality, background, experience, loyalty, uniqueId) {
             this.name = name;
             this.personality = personality;
+            this.background = background;
             this.experience = experience;
             this.loyalty = loyalty;
-            this.background = background;
             this.tokenId = uniqueId; // Assign unique token ID
+            this.memory = new NPCMemory(this); // Create a memory object
         }
 
         gainExperience() {
@@ -29,7 +30,48 @@ document.addEventListener("DOMContentLoaded", function () {
         getIntroduction() {
             return `${this.name}, a ${this.background}, seems ${this.personality.toLowerCase()}.`;
         }
+
+        getMemory() {
+            return this.memory;
+        }
     }
+
+    class NPCMemory {
+        constructor(npcEvents = []) {
+            this.Relationships = new Relationship(); // Remove the 0
+            this.Events = npcEvents;
+        }
+    }
+
+    class Relationship {
+        constructor(friends = [], enemies = [], npcOpinions = {}) {
+            this.opinionPlayer = 0; // Default opinion towards the player
+            this.friends = friends;
+            this.enemies = enemies;
+            this.npcOpinions = npcOpinions; // Object to store opinions on specific NPCs
+        }
+
+        setOpinion(npcTokenId, opinion) {
+            this.npcOpinions[npcTokenId] = opinion;
+        }
+
+        getOpinion(npcTokenId) {
+            return this.npcOpinions[npcTokenId] || 0; // Default opinion is 0 if not set
+        }
+
+        getOpinionsWithNames(npcRegistry) {
+            return Object.keys(this.npcOpinions).map(tokenId => {
+                return {
+                    name: npcRegistry[tokenId] ? npcRegistry[tokenId].name : "Unknown NPC",
+                    opinion: this.npcOpinions[tokenId]
+                };
+            });
+        }
+    }
+
+//NPC > NPCMemory > Relationship, Events
+//NPC > NPCMemory > Events > eventID, eventDescription, eventOutcome, eventImpact
+//NPC > NPCMemory > Relationship > opinionPlayer, opinionNPC, friends, enemies
 
     class Dialogue {
         constructor(npc) {
@@ -44,7 +86,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Function to save NPCs to localStorage
     function saveNPCs(slot = currentSaveSlot) {
-        localStorage.setItem(slot, JSON.stringify(npcs));
+        const npcData = npcs.map(npc => {
+            const memoryCopy = {
+                Relationships: {
+                    opinionPlayer: npc.memory.Relationships.opinionPlayer,
+                    friends: npc.memory.Relationships.friends,
+                    enemies: npc.memory.Relationships.enemies,
+                    npcOpinions: npc.memory.Relationships.npcOpinions
+                },
+                Events: Array.isArray(npc.memory.Events) ? npc.memory.Events.map(event => ({ ...event })) : [] // Ensure Events is an array
+            };
+            return {
+                name: npc.name,
+                personality: npc.personality,
+                background: npc.background,
+                experience: npc.experience,
+                loyalty: npc.loyalty,
+                tokenId: npc.tokenId,
+                memory: memoryCopy
+            };
+        });
+        localStorage.setItem(slot, JSON.stringify(npcData));
         console.log(`NPCs saved to ${slot}.`);
     }
 
@@ -52,14 +114,22 @@ document.addEventListener("DOMContentLoaded", function () {
     function loadNPCs(slot = currentSaveSlot) {
         let storedNPCs = localStorage.getItem(slot);
         if (storedNPCs) {
-            npcs = JSON.parse(storedNPCs).map(npcData => new NPC(
-                npcData.name,
-                npcData.personality,
-                npcData.experience,
-                npcData.loyalty,
-                npcData.background,
-                npcData.tokenId
-            ));
+            npcs = JSON.parse(storedNPCs).map(npcData => {
+                const npc = new NPC(
+                    npcData.name,
+                    npcData.personality,
+                    npcData.background,
+                    npcData.experience,
+                    npcData.loyalty,
+                    npcData.tokenId
+                );
+                npc.memory.Relationships.opinionPlayer = npcData.memory.Relationships.opinionPlayer;
+                npc.memory.Relationships.friends = npcData.memory.Relationships.friends;
+                npc.memory.Relationships.enemies = npcData.memory.Relationships.enemies;
+                npc.memory.Relationships.npcOpinions = npcData.memory.Relationships.npcOpinions;
+                npc.memory.Events = npcData.memory.Events;
+                return npc;
+            });
             npcRegistry = {};
             npcs.forEach(npc => {
                 npcRegistry[npc.tokenId] = npc;
@@ -115,12 +185,12 @@ document.addEventListener("DOMContentLoaded", function () {
     function promoteToNPC(unitName) {
         let npcName = getRandomName();
         let personality = getRandomPersonality();
+        let background = getRandomBackground();
         let experience = Math.floor(Math.random() * 100);
         let loyalty = Math.floor(Math.random() * 100);
-        let background = getRandomBackground();
         let uniqueId = generateTokenId();
 
-        let newNPC = new NPC(npcName, personality, experience, loyalty, background, uniqueId);
+        let newNPC = new NPC(npcName, personality, background, experience, loyalty, uniqueId);
         npcs.push(newNPC);
         npcRegistry[newNPC.tokenId] = newNPC; // Add NPC to registry
 
@@ -128,7 +198,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let dialogue = new Dialogue(newNPC);
         npcText.textContent = `${newNPC.name}: ` + dialogue.getRandomDialogue();
-        console.log("New NPC Created:", newNPC);
+
+        // Log NPC details in the specified order
+        console.log("New NPC Created:", {
+            name: newNPC.name,
+            tokenId: newNPC.tokenId,
+            personality: newNPC.personality,
+            experience: newNPC.experience,
+            loyalty: newNPC.loyalty,
+            memory: {
+                opinions: newNPC.memory.Relationships.getOpinionsWithNames(npcRegistry),
+                friends: newNPC.memory.Relationships.friends.map(friendId => npcRegistry[friendId] ? npcRegistry[friendId].name : "Unknown NPC"),
+                enemies: newNPC.memory.Relationships.enemies.map(enemyId => npcRegistry[enemyId] ? npcRegistry[enemyId].name : "Unknown NPC")
+            }
+        });
     }
 
     function setStance(stance) {
@@ -147,9 +230,18 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("Current NPCs:", npcs);
         console.log("NPC Registry:",
             Object.keys(npcRegistry).map(tokenId => {
+                const npc = npcRegistry[tokenId];
                 return {
+                    name: npc.name,
                     tokenId: tokenId,
-                    name: npcRegistry[tokenId].name
+                    personality: npc.personality,
+                    experience: npc.experience,
+                    loyalty: npc.loyalty,
+                    memory: {
+                        opinions: npc.memory.Relationships.getOpinionsWithNames(npcRegistry),
+                        friends: npc.memory.Relationships.friends.map(friendId => npcRegistry[friendId] ? npcRegistry[friendId].name : "Unknown NPC"),
+                        enemies: npc.memory.Relationships.enemies.map(enemyId => npcRegistry[enemyId] ? npcRegistry[enemyId].name : "Unknown NPC")
+                    }
                 };
             })
         );
@@ -423,11 +515,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function talkToNPC(npcId) {
         const npc = npcRegistry[npcId];
+        let npcIntroDialogue = npc.getIntroduction();
+        toggleInfo('npc-dialoguebox');
+        //populate npc dialogue box
+        document.getElementById('npc-dialoguebox').innerHTML = `
+        <h3>${npc.name}</h3>
+        <p id="npcChatBox">${npcIntroDialogue}</p>`;
+        
         if (npc) {
             alert(`Talking to ${npc.name}`);
             console.log(`Talking to NPC: ${npc.name}`);
             // Implement the dialogue interaction here
         }
+    }
+
+    function playerNPCInteraction() {
+        const npc = npcRegistry[npcId];
+        document.getElementById('npc-dialoguebox').innerHTML = `
+        <h2>${npc.name}</h2>
+        <p id="npcChatBox"></p>`;
+        if (npc) {
+            let dialogue = new Dialogue(npc);
+            npcText.textContent = dialogue.getIntroduction();
+            document.getElementById('npc-dialoguebox').innerHTML = npcText;
+        }
+        // Implement player-NPC interaction here
     }
 
     // Expose functions globally
@@ -457,4 +569,5 @@ document.addEventListener("DOMContentLoaded", function () {
     window.toggleDevTools = toggleDevTools;
     window.wipeLocalStorage = wipeLocalStorage;
     window.toggleAutosave = toggleAutosave;
-});
+
+    });

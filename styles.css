@@ -61,6 +61,14 @@ main {
     border-radius: 5px;
 }
 
+.npc-dialogue-box {
+    display: none;
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
 .npc-dialogue button {
     background-color: #007bff;
     color: white;
