@@ -570,4 +570,35 @@ document.addEventListener("DOMContentLoaded", function () {
     window.wipeLocalStorage = wipeLocalStorage;
     window.toggleAutosave = toggleAutosave;
 
-    });
+    // Function to perform a status check
+    function statusCheck() {
+        try {
+            console.log("%cStarting status check...", "color: blue;");
+
+            // Test NPC creation
+            let testNPC = new NPC(getRandomName(), getRandomPersonality(), getRandomBackground(), 50, 50, generateTokenId());
+            addOrUpdateNPC(testNPC);
+            console.log("%cNPC creation test passed.", "color: green;");
+
+            // Test battle mode
+            switchToBattleMode();
+            console.log("%cBattle mode test passed.", "color: green;");
+
+            // Test player info display
+            showPlayerInfo();
+            console.log("%cPlayer info display test passed.", "color: green;");
+
+            // Test NPC list display
+            showNPCList();
+            console.log("%cNPC list display test passed.", "color: green;");
+
+            console.log("%cStatus check completed successfully.", "color: green; font-weight: bold;");
+        } catch (error) {
+            console.error("%cStatus check failed:", "color: red; font-weight: bold;", error);
+        }
+    }
+
+    // Expose statusCheck function globally
+    window.statusCheck = statusCheck;
+
+});
