@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // Variables
     let units = ["Soldier 1", "Soldier 2", "Soldier 3", "Soldier 4", "Soldier 5"];
     let battleLog = document.getElementById("battle-log");
     let npcDialogue = document.getElementById("npc-dialogue");
@@ -8,6 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentSaveSlot = "manualSave"; // Default save slot
     let autosaveIntervalId = null; // Variable to store the autosave interval ID
 
+    // Classes
     class NPC {
         constructor(name, personality, background, experience, loyalty, uniqueId) {
             this.name = name;
@@ -69,10 +71,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-//NPC > NPCMemory > Relationship, Events
-//NPC > NPCMemory > Events > eventID, eventDescription, eventOutcome, eventImpact
-//NPC > NPCMemory > Relationship > opinionPlayer, opinionNPC, friends, enemies
-
     class Dialogue {
         constructor(npc) {
             this.npc = npc;
@@ -84,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Function to save NPCs to localStorage
+    // Functions
     function saveNPCs(slot = currentSaveSlot) {
         const npcData = npcs.map(npc => {
             const memoryCopy = {
@@ -110,7 +108,6 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log(`NPCs saved to ${slot}.`);
     }
 
-    // Function to load NPCs from localStorage
     function loadNPCs(slot = currentSaveSlot) {
         let storedNPCs = localStorage.getItem(slot);
         if (storedNPCs) {
@@ -138,7 +135,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Function to wipe localStorage
     function wipeLocalStorage() {
         localStorage.clear();
         npcs = [];
@@ -146,22 +142,18 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("LocalStorage wiped.");
     }
 
-    // Get a random NPC name
     function getRandomName() {
         return NPC_NAMES[Math.floor(Math.random() * NPC_NAMES.length)];
     }
 
-    // Get a random NPC personality
     function getRandomPersonality() {
         return personalityPool[Math.floor(Math.random() * personalityPool.length)];
     }
 
-    // Get a random NPC background
     function getRandomBackground() {
         return backgroundPool[Math.floor(Math.random() * backgroundPool.length)];
     }
 
-    // Function to generate a unique token ID for each NPC
     function generateTokenId() {
         return 'npc_' + Math.random().toString(36).substr(2, 9); // Simple unique token ID
     }
@@ -227,41 +219,39 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function debugNPCs() {
-        console.log("Current NPCs:", npcs);
+        console.log("Current NPCs:", npcs.map(npc => ({
+            name: npc.name,
+            tokenId: npc.tokenId,
+            personality: npc.personality,
+            experience: npc.experience,
+            loyalty: npc.loyalty,
+            memory: {
+                opinions: npc.memory.Relationships.getOpinionsWithNames(npcRegistry),
+                friends: npc.memory.Relationships.friends.map(friendId => npcRegistry[friendId] ? npcRegistry[friendId].name : "Unknown NPC"),
+                enemies: npc.memory.Relationships.enemies.map(enemyId => npcRegistry[enemyId] ? npcRegistry[enemyId].name : "Unknown NPC")
+            }
+        })));
         console.log("NPC Registry:",
-            Object.keys(npcRegistry).map(tokenId => {
-                const npc = npcRegistry[tokenId];
-                return {
-                    name: npc.name,
-                    tokenId: tokenId,
-                    personality: npc.personality,
-                    experience: npc.experience,
-                    loyalty: npc.loyalty,
-                    memory: {
-                        opinions: npc.memory.Relationships.getOpinionsWithNames(npcRegistry),
-                        friends: npc.memory.Relationships.friends.map(friendId => npcRegistry[friendId] ? npcRegistry[friendId].name : "Unknown NPC"),
-                        enemies: npc.memory.Relationships.enemies.map(enemyId => npcRegistry[enemyId] ? npcRegistry[enemyId].name : "Unknown NPC")
-                    }
-                };
-            })
+            Object.keys(npcRegistry).map(tokenId => ({
+                tokenId: tokenId,
+                name: npcRegistry[tokenId].name
+            }))
         );
     }
 
-    // Expose functions globally
-    window.startBattle = startBattle; // Start the battle
-    window.setStance = setStance; // Set the stance of the player
-    window.debugNPCs = debugNPCs; // Debug NPCs
+    // Expose debugNPCs function globally
+    window.debugNPCs = debugNPCs;
 
-    // Function to add or overwrite an NPC
     function addOrUpdateNPC(npc) {
         npcRegistry[npc.tokenId] = npc; // If token ID already exists, it will overwrite
+        const existingNPCIndex = npcs.findIndex(existingNPC => existingNPC.tokenId === npc.tokenId);
+        if (existingNPCIndex !== -1) {
+            npcs[existingNPCIndex] = npc; // Update existing NPC
+        } else {
+            npcs.push(npc); // Add new NPC
+        }
     }
-    console.log(npcRegistry);
 
-    // Expose addOrUpdateNPC function globally
-    window.addOrUpdateNPC = addOrUpdateNPC;
-
-    // Export NPCs as JSON file
     function exportNPCs() {
         let dataStr = JSON.stringify(npcs, null, 2);
         let blob = new Blob([dataStr], { type: "application/json" });
@@ -271,7 +261,6 @@ document.addEventListener("DOMContentLoaded", function () {
         a.click();
     }
 
-    // Import NPCs from JSON file
     function importNPCs(event) {
         let file = event.target.files[0];
         if (!file) return;
@@ -312,7 +301,6 @@ document.addEventListener("DOMContentLoaded", function () {
         reader.readAsText(file);
     }
 
-    // Validate NPC data
     function validateNPCData(npcData) {
         return npcData &&
             typeof npcData.name === 'string' &&
@@ -323,7 +311,6 @@ document.addEventListener("DOMContentLoaded", function () {
             typeof npcData.tokenId === 'string';
     }
 
-    // Create export/import buttons
     function createDevTools() {
         let input = document.createElement("input");
         input.type = "file";
@@ -591,6 +578,14 @@ document.addEventListener("DOMContentLoaded", function () {
             // Test NPC list display
             showNPCList();
             console.log("%cNPC list display test passed.", "color: green;");
+
+            // Remove the test NPC
+            delete npcRegistry[testNPC.tokenId];
+            npcs = npcs.filter(npc => npc.tokenId !== testNPC.tokenId);
+            console.log("%cTest NPC removed.", "color: green;");
+
+            // Refresh the NPC list display to ensure the test NPC is removed from the UI
+            showNPCList();
 
             console.log("%cStatus check completed successfully.", "color: green; font-weight: bold;");
         } catch (error) {
