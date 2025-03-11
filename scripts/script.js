@@ -235,6 +235,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  window.getRandomName = getRandomName;
+  window.getRandomPersonality = getRandomPersonality;
+  window.getRandomBackground = getRandomBackground;
+  window.generateTokenId = generateTokenId;
+  window.promoteToNPC = promoteToNPC;
+
   function setStance(stance) {
     let responseLog = {
       positive:
@@ -508,7 +514,6 @@ document.addEventListener("DOMContentLoaded", function () {
     battleState = "battle";
     battleLog.innerHTML = "The battle begins...\n";
     console.log("Switched to Battle mode.");
-    startBattle();
 
     // Disable the active mode button
     document.getElementById("map-mode-button").disabled = false;

@@ -1,3 +1,6 @@
+//this repeats a LOT of stuff already in the script.js file, but I'm not sure how to make it work otherwise.
+//It will break the game if I don't include it here, so I'm leaving it in for now.
+
 let units = ["Soldier 1", "Soldier 2", "Soldier 3", "Soldier 4", "Soldier 5"];
 let battleLog = document.getElementById("battle-log");
 let battlefieldName = document.getElementById("battlefield-name");
