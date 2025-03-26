@@ -454,13 +454,15 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function toggleDevTools() {
-    let devToolsContainer = document.getElementById("dev-tools-container");
-    if (devToolsContainer.style.display === "none") {
-      devToolsContainer.style.display = "block";
+    const devToolsContainer = document.getElementById('dev-tools-container');
+    if (devToolsContainer.classList.contains('hidden')) {
+        devToolsContainer.classList.remove('hidden');
+        devToolsContainer.classList.add('visible');
     } else {
-      devToolsContainer.style.display = "none";
+        devToolsContainer.classList.remove('visible');
+        devToolsContainer.classList.add('hidden');
     }
-  }
+}
 
   function toggleAutosave() {
     if (autosaveIntervalId === null) {
@@ -474,18 +476,17 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function showTab(tabName) {
-    const tabs = document.querySelectorAll(".tab-content");
-    tabs.forEach((tab) => {
-      tab.style.display = "none";
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => {
+        if (tab.id === `${tabName}-tab`) {
+            tab.classList.remove('hidden');
+            tab.classList.add('visible');
+        } else {
+            tab.classList.remove('visible');
+            tab.classList.add('hidden');
+        }
     });
-    document.getElementById(`${tabName}-tab`).style.display = "block";
-    console.log(`Switched to ${tabName} tab.`);
-
-    // Disable the active tab button
-    document.getElementById("battle-tab-button").disabled =
-      tabName === "battle";
-    document.getElementById("npc-tab-button").disabled = tabName === "npc";
-  }
+}
 
   function switchToMapMode() {
     battleState = "map";
