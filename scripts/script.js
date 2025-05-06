@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Variables
   let units = ["Soldier 1", "Soldier 2", "Soldier 3", "Soldier 4", "Soldier 5"];
   let battleLog = document.getElementById("battle-log");
-  let npcDialogue = document.getElementById("npc-dialogue");
+  window.npcDialogue = document.getElementById("npc-dialogue"); // Make npcDialogue globally accessible
   let npcText = document.getElementById("npc-text");
   let npcs = []; // Array to store created NPCs
   let npcRegistry = {}; // Object to store NPCs by token ID
@@ -91,8 +91,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     getRandomDialogue() {
-      return this
-        .possibleDialogues[Math.floor(Math.random() * this.possibleDialogues.length)];
+      return this.possibleDialogues[
+        Math.floor(Math.random() * this.possibleDialogues.length)
+      ];
     }
   }
 
@@ -211,7 +212,7 @@ document.addEventListener("DOMContentLoaded", function () {
     npcs.push(newNPC);
     npcRegistry[newNPC.tokenId] = newNPC; // Add NPC to registry
 
-    npcDialogue.style.display = "block";
+    npcDialogue.style.display = "block"; // Ensure this matches the HTML id
 
     let dialogue = new Dialogue(newNPC);
     npcText.textContent = `${newNPC.name}: ` + dialogue.getRandomDialogue();
@@ -482,9 +483,13 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log(`Switched to ${tabName} tab.`);
 
     // Disable the active tab button
-    document.getElementById("battle-tab-button").disabled =
-      tabName === "battle";
+    document.getElementById("battle-tab-button").disabled = tabName === "battle";
     document.getElementById("npc-tab-button").disabled = tabName === "npc";
+
+    // Refresh NPC list when switching to the NPC tab
+    if (tabName === "npc") {
+      showNPCList();
+    }
   }
 
   function switchToMapMode() {
@@ -570,7 +575,6 @@ document.addEventListener("DOMContentLoaded", function () {
         <p id="npcChatBox">${npcIntroDialogue}</p>`;
 
     if (npc) {
-      alert(`Talking to ${npc.name}`);
       console.log(`Talking to NPC: ${npc.name}`);
       // Implement the dialogue interaction here
     }
@@ -616,8 +620,7 @@ document.addEventListener("DOMContentLoaded", function () {
   window.toggleDevTools = toggleDevTools;
   window.wipeLocalStorage = wipeLocalStorage;
   window.toggleAutosave = toggleAutosave;
-
-  // Function to perform a status check
+  
   function statusCheck() {
     try {
       console.log("%cStarting status check...", "color: #0056b3;");

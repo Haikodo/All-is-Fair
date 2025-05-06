@@ -1,0 +1,48 @@
+TODO List:
+
+Battle System:
+    1. Create `unitData` structure (Prerequisite for all battle mechanics):
+        - Define stats: attack damage, defense, health, etc.
+        - Include additional metadata for units (e.g., name, type, abilities).
+
+    2. Implement unit mechanics (Depends on `unitData`):
+        - Write logic for units attacking each other.
+        - Calculate damage based on stats and elements.
+        - Implement health reduction and death conditions.
+
+        3. Develop enemy AI (Depends on unit mechanics):
+            - Write a script for enemy decision-making during battles.
+            - Implement logic for targeting, attacking, and defending.
+            - Add behavior patterns based on difficulty or unit type.
+
+    4. Integrate deployment mode (Depends on `unitData` and map mode):
+        - Create a system for placing units on the battlefield.
+        - Ensure compatibility with the map mode.
+
+        5. Integrate map mode (Depends on deployment mode and battle mechanics):
+            - Develop a system for transitioning between map exploration and battles.
+            - Ensure smooth interaction between map mode and battle mode.
+
+NPC Interaction System:
+    1. Test NPC memory system (Prerequisite for NPC behavior):
+        - Verify that NPCs can remember past interactions.
+        - Ensure memory affects future behavior.
+
+        2. Create loyalty system (Depends on NPC memory system):
+            - Define how loyalty is gained or lost.
+            - Implement effects of loyalty on NPC behavior.
+
+        3. Develop opinion system (Depends on NPC memory system):
+            - Create a system for NPCs to form opinions about the player and other NPCs.
+            - Ensure opinions influence interactions and decisions.
+
+            4. Implement NPC-to-player interaction (Depends on loyalty and opinion systems):
+                - Write dialogue and interaction logic.
+                - Add branching choices based on player actions.
+
+            5. Implement NPC-to-NPC interaction (Depends on loyalty and opinion systems):
+                - Develop logic for NPCs interacting with each other.
+                - Add behaviors like conversations, alliances, or rivalries.
+
+        6. Add additional features (Depends on all NPC systems):
+            - Expand on systems as needed (e.g., reputation, factions, etc.).
